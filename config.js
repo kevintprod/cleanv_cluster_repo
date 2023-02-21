@@ -3,45 +3,92 @@ dotenv.config();
 
 const env = process.env.ENV;
 // connection to redis
-export const CONFIG_REDIS = {
-  redisConn_DB: {
-    queue: {
-      connection: {
-        host: process.env.REDIS_TEST_ENDPOINT,
-        port: process.env.REDIS_TEST_PORT,
-        password: process.env.REDIS_TEST_PASSWORD,
-        enableOfflineQueue: false,
-        connectionTimeout: 5000,
-        lazyConnect: true,
-        retryStrategy(times) {
-          console.warn(`Retrying redis connection: attempt ${times}`);
-          if (times === 10) {
-            return new Error('Redis retry time Error');
-          }
-          return Math.min(times * 500, 2000);
+export const CONFIG_REDIS =
+  env === 'development'
+    ? {
+        redisConn_DB: {
+          queue: {
+            connection: {
+              host: process.env.REDIS_TEST_ENDPOINT,
+              port: process.env.REDIS_TEST_PORT,
+              password: process.env.REDIS_TEST_PASSWORD,
+              enableOfflineQueue: false,
+              connectionTimeout: 5000,
+              lazyConnect: true,
+              retryStrategy(times) {
+                console.warn(`Retrying redis connection: attempt ${times}`);
+                if (times === 10) {
+                  return new Error('Redis retry time Error');
+                }
+                return Math.min(times * 500, 2000);
+              },
+            },
+            // limiter: {
+            //   max: 5,
+            //   duration: 1000,
+            // },
+          },
+          worker: {
+            connection: {
+              host: process.env.REDIS_TEST_ENDPOINT,
+              port: process.env.REDIS_TEST_PORT,
+              password: process.env.REDIS_TEST_PASSWORD,
+              enableOfflineQueue: false,
+              connectionTimeout: 5000,
+              lazyConnect: true,
+              retryStrategy(times) {
+                console.warn(`Retrying redis connection: attempt ${times}`);
+                if (times === 10) {
+                  return new Error('Redis retry time Error');
+                }
+                return Math.min(times * 500, 2000);
+              },
+            },
+            concurrency: process.env.MAX_JOB_BULLMQ_CONCURRENCY,
+          },
         },
-      },
-    },
-    worker: {
-      connection: {
-        host: process.env.REDIS_TEST_ENDPOINT,
-        port: process.env.REDIS_TEST_PORT,
-        password: process.env.REDIS_TEST_PASSWORD,
-        enableOfflineQueue: false,
-        connectionTimeout: 5000,
-        lazyConnect: true,
-        retryStrategy(times) {
-          console.warn(`Retrying redis connection: attempt ${times}`);
-          if (times === 10) {
-            return new Error('Redis retry time Error');
-          }
-          return Math.min(times * 500, 2000);
+      }
+    : {
+        redisConn_DB: {
+          queue: {
+            connection: {
+              host: process.env.REDIS_ENDPOINT,
+              port: process.env.REDIS_PORT,
+              enableOfflineQueue: false,
+              connectionTimeout: 5000,
+              lazyConnect: true,
+              retryStrategy(times) {
+                console.warn(`Retrying redis connection: attempt ${times}`);
+                if (times === 10) {
+                  return new Error('Redis retry time Error');
+                }
+                return Math.min(times * 500, 2000);
+              },
+            },
+            // limiter: {
+            //   max: 5,
+            //   duration: 1000,
+            // },
+          },
+          worker: {
+            connection: {
+              host: process.env.REDIS_ENDPOINT,
+              port: process.env.REDIS_PORT,
+              enableOfflineQueue: false,
+              connectionTimeout: 5000,
+              lazyConnect: true,
+              retryStrategy(times) {
+                console.warn(`Retrying redis connection: attempt ${times}`);
+                if (times === 10) {
+                  return new Error('Redis retry time Error');
+                }
+                return Math.min(times * 500, 2000);
+              },
+            },
+            concurrency: process.env.MAX_JOB_BULLMQ_CONCURRENCY,
+          },
         },
-      },
-      concurrency: process.env.MAX_JOB_BULLMQ_CONCURRENCY,
-    },
-  },
-};
+      };
 
 export const CONFIG_DB =
   env === 'development'
