@@ -8,7 +8,7 @@ import { ExpressAdapter } from '@bull-board/express';
 
 import { ProcessFile } from './controller/fileprocess.js';
 import { CONFIG_REDIS } from './config.js';
-
+console.log(CONFIG_REDIS.redisConn_DB);
 dotenv.config();
 const app = express();
 
